@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Snapshot Client</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Verdana;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+        var url = 'ws://127.0.0.1:8023/SnapshotService';
+        var ws = null;
+
+        window.onload = function () {
+            sendClick();
+        }
+
+        function sendClick() {
+            if (ws == null) {
+                ws = new WebSocket(url);
+                ws.onopen = sendMessage;
+                ws.onmessage = receiveMessage;
+                ws.onclose = function (e) {
+                    ws = null;
+                    if (confirm("Connection closed. Do you wish to reconnect?")) {
+                        sendClick();
+                    }
+                };
+            } else {
+                sendMessage();
+            }
+            return false;
+        }
+
+        function sendMessage() {
+            try {
+                var snapshotClient = new Object();
+                snapshotClient.UserName = "Senen";
+                snapshotClient.Message = "Hola";
+                ws.send(JSON.stringify(snapshotClient));
+            } catch (e) {
+                alert("Error " + e);
+            }
+        }
+
+        function receiveMessage(e) {
+            var o = JSON.parse(e.data);
+            document.body.style.background = "url(data:image/jpg;base64," + o.Image + ") no-repeat center center fixed";
+            document.body.style.backgroundSize = "100% 100%";
+        }
+    </script>
+</body>
+</html>
